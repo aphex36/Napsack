@@ -1,0 +1,30 @@
+              <div style="text-align: center">
+                <div style="display: inline-block">
+                  <h2>{{results.title}}</h2>
+                  <div style="display: none" class="postNumber" id="{{results.postId}}"></div>
+                  <div style="display: inline-block; max-width:70%">
+                    <p style="text-align:left">{{results.description}}</p>
+                  </div>
+                  <br>
+                  <div ng-if='results.imageURL' style="display:inline-block">
+                    <img ng-if="results.category != 'Videos'"style='max-width:90%' ng-src='{{results.imageURL}}'></img>
+                    <iframe ng-if="results.category == 'Videos'" type="text/html" frameborder='0' style="width: 700px; height: 400px" ng-src="{{results.imageURL}}"></iframe>
+                  </div>
+                </div>
+              </div>
+              <div style='visibility:hidden' id='submissionForm'>
+                <h3 class="ng-cloak" style="margin-left: 20px; margin-right: 20px; margin-bottom: 20px">{{results.commentLabel}}</h3>
+                <textarea id="commentArea" placeholder="Write a comment"style="margin-left:20px" cols="40" type="text"></textarea><br>
+                <button style='float:left; margin: 20px; margin-bottom: 30px' id="newComment" class='btn btn-primary'>Submit</button>
+                <br>
+              </div>
+              <div style="margin-left: 20px; display: inline-block; width: 100%">
+                <div ng-repeat="comment in results.comments">
+                  <div class="response" style="margin-top: 0px; border-left: 4px solid #337ab7">
+                      <div style="text-align: center; margin-bottom: 10px; width: 40px; height: 40px; background-color: {{comment.color}}">
+                        <i style="color: white; margin-top: 5px" class="{{comment.symbol}}"></i>
+                      </div>
+                      <p style="display: inline-block; margin-top: 5px">{{comment.actualComment}}</p>
+                  </div>
+                </div>
+              </div>

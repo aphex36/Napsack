@@ -1,0 +1,16 @@
+<div ng-repeat="x in results.shown">
+  <div style="margin: 50px; display: inline-block; height: 150px; width: 100%">
+    <img ng-src="{{results.profilePicURL}}" style ='height:150px; width: 150px; vertical-align: top'></img>
+    <div style='display:inline-block; height:100%'>
+      <h3 style='display:inline-block; margin: 10px'>{{results.username}}</h3><br>
+    </div>
+  </div>
+  <div style='text-align: center'>
+    <button class="btn btn-primary">All<br><i class='fa fa-folder-open fa-3x'></i></button>
+    <button class="btn btn-primary">Upvotes<br><i class='fa fa-arrow-up fa-3x'></i></button>
+    <button onclick="getUsersPost()" class="btn btn-primary">Submitted<br><i class='fa fa-reply fa-3x'></i></button>
+    <button class="btn btn-primary">Comments<br><i class='fa fa-comment fa-3x'></i></button>
+  </div>
+  <div id="displayUserHistoryElem">
+  </div>
+</div>

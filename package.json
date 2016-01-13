@@ -1,0 +1,19 @@
+{
+  "name": "Knapsack",
+  "version": "1.0.0",
+  "description": "Social funnies sharing website",
+  "main": "startingServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node startingServer.js"
+  },
+  "author": "Rohan Bais",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "express": "^4.13.3",
+    "http": "0.0.0",
+    "mongoose": "^4.1.7",
+    "underscore": "^1.8.3"
+  }
+}

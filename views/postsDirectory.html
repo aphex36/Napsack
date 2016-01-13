@@ -1,0 +1,49 @@
+
+            <div style='vertical-align:top'>
+              <div style="float:left; margin: 10px" class="dropdown">
+                <button class="btn btn-danger dropdown-toggle" type="button" data-toggle="dropdown">Top
+                  <span class="caret"></span></button>
+                  <ul class="dropdown-menu">
+                    <li><a href="#/sort/top?t=day" style="cursor: pointer">Day</a></li>
+                    <li><a href="#/sort/top?t=week" style="cursor: pointer">Week</a></li>
+                    <li><a href="#/sort/top?t=month" style="cursor: pointer">Month</a></li>
+                    <li><a href="#/sort/top?t=year" style="cursor: pointer">Year</a></li>
+                    <li><a href="#/sort/top?t=allTime" style="cursor: pointer">All Time</a></li>
+                  </ul>
+                </div>
+                <div style="float:left; margin: 10px" class="dropdown">
+                  <a href="#/sort/new"id="newestSubmissions" class="btn btn-danger dropdown-toggle" type="button">New</a>
+                </div>
+              </div>
+              <br>
+              <div id="right-pane" style='min-height:500px'>
+                <div style="text-align: center" ng-repeat="result in noResults">
+                    <h2>{{result}}</h2>
+                </div>
+                <div>
+                  <div class="list-question question-info" ng-repeat="singlePost in results" id="{{singlePost._id}}">
+                      <div ng-if="singlePost.isUpvoted" style='width: 28px; height: 56px; vertical-align: top; display: inline-block'>
+                        <i ng-click="clickUpvote($event)" style='color: #CC0000; cursor: pointer' class='fa fa-chevron-up fa-2x'></i><br>
+                        <i ng-click="clickDownvote($event)" style='color: #bbb; cursor: pointer' class='fa fa-chevron-down fa-2x'></i><br>
+                      </div>
+                      <div ng-if="singlePost.isDownvoted" style='width: 28px; height: 56px; vertical-align: top; display: inline-block'>
+                        <i ng-click="clickUpvote($event)" style='color: #bbb; cursor: pointer' class='fa fa-chevron-up fa-2x'></i><br>
+                        <i ng-click="clickDownvote($event)" style='color: #CC0000; cursor: pointer' class='fa fa-chevron-down fa-2x'></i><br>
+                      </div>
+                      <div ng-if="singlePost.isNeither" style='width: 28px; height: 56px; vertical-align: top; display: inline-block'>
+                        <i ng-click="clickUpvote($event)" style='color: #bbb; cursor: pointer' class='fa fa-chevron-up fa-2x'></i><br>
+                        <i ng-click="clickDownvote($event)" style='color: #bbb; cursor: pointer' class='fa fa-chevron-down fa-2x'></i><br>
+                      </div>
+                      <div style='vertical-align: top; display: inline-block; padding-left: 10px;'>
+                        <img ng-if="singlePost.imageURL" onclick="$($(this).parent().find('a'))[0].click();" width='90px' height='90px' style = 'border: 1px solid black' ng-src="{{singlePost.imageURL}}"></img>
+                        <img ng-if="!singlePost.imageURL" onclick="$($(this).parent().find('a'))[0].click();" width='90px' height='90px' style = 'border: 1px solid black' ng-src="http://www.clevelandheights.com/modules/showimage.aspx?imageid=601"></img>
+                        <a ng-href="#/posts/{{singlePost._id}}"></a>
+                      </div>
+                      <div style='vertical-align: top; display: inline-block; padding-left: 10px; width: 75%'>
+                        <h3 style='margin-top: 0px'><a ng-href="#/posts/{{singlePost._id}}">{{singlePost.title}}</a></h3>
+                        <p>{{singlePost.description}}</p>
+                        <p style='font-size: 90%'><span class="pointsSection" ng-bind="singlePost.points"></span> points<i style="margin-left: 8px; margin-right: 8px" class="fa fa-circle"></i>{{singlePost.numComments}}<i style="margin-left: 8px; margin-right: 8px" class="fa fa-circle"></i>{{singlePost.category}}</p>
+                      </div>
+                  </div>
+                </div>
+              </div>

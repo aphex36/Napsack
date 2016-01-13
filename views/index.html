@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Napsack</title>
+        <meta charset="utf-8" />
+        <link rel="shortcut icon" type="image/png" href="https://dl.dropboxusercontent.com/u/374061708/knapsack.png"/>
+        <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/374061708/normalize.css" />
+        <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/374061708/style.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-route.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.4/handlebars.js"></script>
+        <script src="https://dl.dropboxusercontent.com/u/374061708/fingerprint.js"></script>
+    </head>
+
+    <body ng-app="myApp" style='background-color: #ECF0F1'>
+      <style>
+      [ng\:cloak], [ng-cloak], .ng-cloak {
+        display: none !important;
+      }
+      </style>
+      <script>
+         function redirector(urlExtension)
+         {
+           $("#dynamicUrlDirector").attr("href", "#/" + urlExtension);
+           $("#dynamicUrlDirector")[0].click();
+         }
+      </script>
+      <script>
+
+          var userIdentifier = new Fingerprint().get() + "";
+          var allResults = [];
+          var myApp = angular.module("myApp", ['ngRoute']);
+          console.log(myApp.signedIn);
+          myApp.config(function($sceDelegateProvider)
+          {
+            $sceDelegateProvider.resourceUrlWhitelist(['https://dl.dropboxusercontent.com/u/374061708/**', 'http://localhost:3000/**', 'http://engr.uconn.edu/~gelyko/images/people_pic/anonymous.png', 'http://media.npr.org/assets/news/1659/10/27/facebook1_sq-17f6f5e06d5742d8c53576f7c13d5cf7158202a9.jpg?s=16','http://ec2-52-91-121-160.compute-1.amazonaws.com:3000/**']);
+          });
+
+          myApp.config(function($routeProvider)
+          {
+            $routeProvider
+                 .when('/',
+                 {
+                   controller: 'mainController',
+                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   controllerAs: 'main',
+                   type: 'main'
+                 })
+                 .when('/posts/:postId',
+                 {
+                   controller: 'postController',
+                   templateUrl: 'http://localhost:3000/specificPost.html',
+                   controllerAs: 'post'
+                 })
+                 .when('/search',
+                 {
+                   controller: 'mainController',
+                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   controllerAs: 'main',
+                   type:'search'
+                 })
+                 .when('/sort/:sortType',
+                 {
+                   controller: 'mainController',
+                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   controllerAs: 'main',
+                   type:'sort'
+                 })
+                 .when('/category/:categoryName',
+                 {
+                   controller: 'mainController',
+                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   controllerAs: 'main',
+                   type:'category'
+                 })
+              });
+              myApp.controller('mainController', ['$route', '$scope', '$sce', '$http','$routeParams', '$timeout',
+                function($route, $scope, $sce, $http, $routeParams, $timeout) {
+                  this.$route = $route;
+                  this.$timeout = $timeout;
+                  this.$routeParams = $routeParams;
+                  $scope.upvoted = function(postId, upvoteButton)
+                  {
+                    $http.post("/api/posts/upvote/" + postId, {"userId": userIdentifier})
+                    .error(function(error)
+                    {
+                      console.log(error);
+                    })
+                  }
+                  $scope.undoUpvote = function(postId, upvoteButton)
+                  {
+                    $http.post("/api/posts/undoUpvote/" + postId, {"userId": userIdentifier})
+                    .error(function(error)
+                    {
+                      console.log(error);
+                    })
+                  }
+
+                  $scope.downvote = function(postId, downvoteButton)
+                  {
+                    $http.post("/api/posts/downvote/" + postId, {"userId": userIdentifier})
+                    .error(function(error)
+                    {
+                      console.log(error);
+                    })
+                  }
+
+                  $scope.undoDownvote = function(postId, downvoteButton)
+                  {
+                    $http.post("/api/posts/undoDownvote/" + postId, {"userId": userIdentifier})
+                    .error(function(error)
+                    {
+                      console.log(error);
+                    })
+                  }
+                  $scope.clickUpvote = function(evt)
+                  {
+                      var indexOfPost = $('.list-question').index($(evt.target).parent().parent());
+                      originalVotes = $(evt.target).parent().parent().find('.pointsSection').html();
+                      if($(evt.target).css('color') == 'rgb(204, 0, 0)')
+                      {
+                        $(evt.target).css('color','#bbb');
+                        $($(evt.target).siblings()[1]).css('color','#bbb')
+                        $(evt.target).parent().parent().find('.pointsSection').html(parseInt(originalVotes)-1);
+                        $scope.undoUpvote($(evt.target).parent().parent().attr('id'), $(evt.target));
+                      }
+                      else {
+                        $(evt.target).css('color','#CC0000');
+                        if($($(evt.target).siblings()[1]).css('color') == 'rgb(204, 0, 0)')
+                        {
+                          $(evt.target).parent().parent().find('.pointsSection').html(parseInt(originalVotes)+2);
+                        }
+                        else {
+                          $(evt.target).parent().parent().find('.pointsSection').html(parseInt(originalVotes)+1);
+                        }
+                        $($(evt.target).siblings()[1]).css('color','#bbb')
+                        $scope.upvoted($(evt.target).parent().parent().attr('id'), $(evt.target));
+                      }
+                  }
+
+                  $scope.clickDownvote = function(evt)
+                  {
+                      var indexOfPost = $('.list-question').index($(evt.target).parent().parent());
+                      originalVotes = $(evt.target).parent().parent().find('.pointsSection').html();
+                      if($(evt.target).css('color') == 'rgb(204, 0, 0)')
+                      {
+                        $(evt.target).css('color','#bbb');
+                        $($(evt.target).siblings()[0]).css('color','#bbb')
+                        $(evt.target).parent().parent().find('.pointsSection').html(parseInt(originalVotes)+1);
+                        $scope.undoDownvote($(evt.target).parent().parent().attr('id'), $(evt.target));
+                      }
+                      else
+                      {
+                        $(evt.target).css('color','#CC0000');
+                        if($($(evt.target).siblings()[0]).css('color') == 'rgb(204, 0, 0)')
+                        {
+                          $(evt.target).parent().parent().find('.pointsSection').html(parseInt(originalVotes)-2);
+                        }
+                        else {
+                          $(evt.target).parent().parent().find('.pointsSection').html(parseInt(originalVotes)-1);
+                        }
+                        $($(evt.target).siblings()[0]).css('color','#bbb')
+                        $scope.downvote($(evt.target).parent().parent().attr('id'), $(evt.target));
+                      }
+                    }
+
+                  $scope.$on('$routeChangeSuccess', function(){
+                    if($route.current.$$route.type == "main")
+                    {
+                      $http.get("/api/posts")
+                      .success(function(response)
+                      {
+                        function compare(a,b) {
+                          if (a.upvotes.length - a.downvotes.length < b.upvotes.length - b.downvotes.length)
+                            return 1;
+                            if (a.upvotes.length - a.downvotes.length > b.upvotes.length - b.downvotes.length)
+                              return -1;
+                          return 0;
+                        }
+
+                        if(response.length == 0)
+                        {
+                          $scope.noResults = ["No posts made!"];
+                        }
+                        else {
+                          allResults = response;
+                          allResults.sort(compare);
+                          $scope.results = response;
+                          for(var i = 0; i < response.length; i++)
+                          {
+                            if($scope.results[i].upvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isUpvoted = true;
+                              allResults[i].isUpvoted = true;
+                            }
+                            else if($scope.results[i].downvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isDownvoted = true;
+                              allResults[i].isDownvoted = true;
+                            }
+                            else
+                            {
+                              $scope.results[i].isNeither = true;
+                              allResults[i].isNeither = true;
+                            }
+                            $scope.results[i].points = $scope.results[i].upvotes.length - $scope.results[i].downvotes.length;
+                            $scope.results[i].numComments = $scope.results[i].comments.length + " comments";
+                            allResults[i].points = allResults[i].upvotes.length - allResults[i].downvotes.length;
+                            allResults[i].numComments = allResults[i].comments.length + " comments";;
+                          }
+
+                          $scope.results.sort(compare);
+                          }
+                          for(var i = 0; i < $scope.results.length; i++)
+                          {
+                            if($scope.results[i].description.length >= 400)
+                            {
+                              $scope.results[i].description = $scope.results[i].description.substring(0,401) + "......";
+                            }
+                            if($scope.results[i].category == "Videos")
+                            {
+                              var videoURL = $scope.results[i].imageURL;
+                              $scope.results[i].imageURL = $sce.trustAsResourceUrl("https://i.ytimg.com/vi/" + videoURL.substring(videoURL.indexOf("/watch?v=") + "/watch?v=".length) + "/hqdefault.jpg");
+                            }
+                          }
+
+                          function safeApply(scope, fn) {
+                            (scope.$$phase || scope.$root.$$phase) ? fn() : scope.$apply();
+                          }
+                          safeApply($scope, function(){});
+                      });
+                    }
+                    else if($route.current.$$route.type == "category") {
+                      $http.get("/api/category/" + $routeParams.categoryName)
+                      .success(function(response)
+                      {
+                        function compare(a,b) {
+                          if (a.upvotes.length - a.downvotes.length < b.upvotes.length - b.downvotes.length)
+                            return 1;
+                            if (a.upvotes.length - a.downvotes.length > b.upvotes.length - b.downvotes.length)
+                              return -1;
+                          return 0;
+                        }
+
+                        if(response.length == 0)
+                        {
+                          $scope.noResults = ["No posts yet!"];
+                        }
+                        else {
+                          allResults = response;
+                          allResults.sort(compare);
+                          $scope.results = response;
+                          for(var i = 0; i < response.length; i++)
+                          {
+                            if($scope.results[i].upvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isUpvoted = true;
+                            }
+                            else if($scope.results[i].downvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isDownvoted = true;
+                            }
+                            else
+                            {
+                              $scope.results[i].isNeither = true;
+                            }
+                            $scope.results[i].points = $scope.results[i].upvotes.length - $scope.results[i].downvotes.length;
+                            $scope.results[i].numComments = $scope.results[i].comments.length + " comments";
+                            if($scope.results[i].category == "Videos")
+                            {
+                              var videoURL = $scope.results[i].imageURL;
+                              $scope.results[i].imageURL = "https://i.ytimg.com/vi/" + videoURL.substring(videoURL.indexOf("/watch?v=") + "/watch?v=".length) + "/hqdefault.jpg"
+                            }
+                          }
+                        }
+
+                        $scope.results.sort(compare);
+                        for(var i = 0; i < $scope.results.length; i++)
+                        {
+                          if($scope.results[i].description.length >= 400)
+                          {
+                            $scope.results[i].description = $scope.results[i].description.substring(0,401) + "...";
+                          }
+                        }
+
+                        function safeApply(scope, fn) {
+                          (scope.$$phase || scope.$root.$$phase) ? fn() : scope.$apply();
+                        }
+                        safeApply($scope, function(){});
+                      });
+                    }
+                    else if($route.current.$$route.type == "search") {
+                      $("#submitSearch").removeClass().addClass('fa fa-spinner fa-pulse');
+                      $http.get("/api/search?q=" + $routeParams.q + "&categories=" + getCheckedBoxes())
+                      .success(function(response)
+                      {
+                        function compare(a,b) {
+                          if (a.upvotes.length - a.downvotes.length < b.upvotes.length - b.downvotes.length)
+                            return 1;
+                            if (a.upvotes.length - a.downvotes.length > b.upvotes.length - b.downvotes.length)
+                              return -1;
+                          return 0;
+                        }
+
+                        if(response.length == 0)
+                        {
+                          $scope.noResults = ["No posts found!"];
+                        }
+                        else {
+                          allResults = response;
+                          allResults.sort(compare);
+                          $scope.results = response;
+                          for(var i = 0; i < response.length; i++)
+                          {
+                            if($scope.results[i].upvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isUpvoted = true;
+                            }
+                            else if($scope.results[i].downvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isDownvoted = true;
+                            }
+                            else
+                            {
+                              $scope.results[i].isNeither = true;
+                            }
+                            $scope.results[i].points = $scope.results[i].upvotes.length - $scope.results[i].downvotes.length;
+                            $scope.results[i].numComments = $scope.results[i].comments.length + " comments";
+                          }
+
+                          $scope.results.sort(compare);
+
+                        }
+                        if($scope.results)
+                        {
+                          for(var i = 0; i < $scope.results.length; i++)
+                          {
+                            console.log($scope.results[i]);
+                            if($scope.results[i].description.length >= 400)
+                            {
+                              $scope.results[i].description = $scope.results[i].description.substring(0,401) + "...";
+                            }
+                            if($scope.results[i].category == "Videos")
+                            {
+                              var videoURL = $scope.results[i].imageURL;
+                              $scope.results[i].imageURL = "https://i.ytimg.com/vi/" + videoURL.substring(videoURL.indexOf("/watch?v=") + "/watch?v=".length) + "/hqdefault.jpg"
+                            }
+                          }
+                        }
+
+                        function safeApply(scope, fn) {
+                          (scope.$$phase || scope.$root.$$phase) ? fn() : scope.$apply();
+                        }
+                        safeApply($scope, function(){});
+
+                        $timeout(function()
+                        {
+                          $("#submitSearch").removeClass().addClass('fa fa-search');
+                        });
+                      });
+                    }
+                    else if($route.current.$$route.type == "sort")
+                    {
+                      if($routeParams.sortType == "new")
+                      {
+                        $http.get("/api/posts")
+                        .success(function(response)
+                        {
+                          function compare(a,b){
+                          if (Date.parse(a.time) < Date.parse(b.time))
+                            return 1;
+                          if (Date.parse(a.time) > Date.parse(b.time))
+                              return -1;
+                          return 0;
+                          }
+
+                        if(response.length == 0)
+                        {
+                          $scope.noResults = ["No posts found!"];
+                        }
+                        else {
+                          $scope.results = response;
+                          for(var i = 0; i < response.length; i++)
+                          {
+                            if($scope.results[i].upvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isUpvoted = true;
+                            }
+                            else if($scope.results[i].downvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isDownvoted = true;
+                            }
+                            else
+                            {
+                              $scope.results[i].isNeither = true;
+                            }
+                            $scope.results[i].points = $scope.results[i].upvotes.length - $scope.results[i].downvotes.length;
+                            $scope.results[i].numComments = $scope.results[i].comments.length + " comments";
+                            if($scope.results[i].category == "Videos")
+                            {
+                              var videoURL = $scope.results[i].imageURL;
+                              $scope.results[i].imageURL = "https://i.ytimg.com/vi/" + videoURL.substring(videoURL.indexOf("/watch?v=") + "/watch?v=".length) + "/hqdefault.jpg"
+                            }
+                          }
+
+                          $scope.results.sort(compare);
+
+                          }
+                          for(var i = 0; i < $scope.results.length; i++)
+                          {
+                            console.log($scope.results[i]);
+                            if($scope.results[i].description.length >= 400)
+                            {
+                              $scope.results[i].description = $scope.results[i].description.substring(0,401) + "...";
+                            }
+                          }
+
+                          function safeApply(scope, fn) {
+                            (scope.$$phase || scope.$root.$$phase) ? fn() : scope.$apply();
+                          }
+                          safeApply($scope, function(){});
+                        });
+                      }
+                      else if($routeParams.sortType == "top")
+                      {
+                        $http.get("/api/posts")
+                        .success(function(response)
+                        {
+                          function compare(a,b) {
+                            if (a.upvotes.length - a.downvotes.length < b.upvotes.length - b.downvotes.length)
+                              return 1;
+                              if (a.upvotes.length - a.downvotes.length > b.upvotes.length - b.downvotes.length)
+                                return -1;
+                            return 0;
+                          }
+
+                        if(response.length == 0)
+                        {
+                          $scope.noResults = ["No posts found!"];
+                        }
+                        else {
+                          $scope.results = response;
+                          for(var i = 0; i < response.length; i++)
+                          {
+                            if($scope.results[i].upvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isUpvoted = true;
+                            }
+                            else if($scope.results[i].downvotes.indexOf(userIdentifier) != -1)
+                            {
+                              $scope.results[i].isDownvoted = true;
+                            }
+                            else
+                            {
+                              $scope.results[i].isNeither = true;
+                            }
+                            $scope.results[i].points = $scope.results[i].upvotes.length - $scope.results[i].downvotes.length;
+                            $scope.results[i].numComments = $scope.results[i].comments.length + " comments";
+                            if($scope.results[i].category == "Videos")
+                              $scope.results[i].imageURL = $sce.trustAsResourceUrl("https://i.ytimg.com/vi/" + $scope.results[i].imageURL.substring($scope.results[i].imageURL.indexOf("/watch?v=") + "/watch?v=".length) + "/hqdefault.jpg");
+                          }
+
+                            $scope.results.sort(compare);
+                            var filterFunction;
+                            switch($routeParams.t)
+                            {
+                              case 'day':
+                                filterFunction = function(a)
+                                {
+                                  var newDate = new Date();
+                                  return  newDate - Date.parse(a.time) <= 86400000
+                                }
+                                break;
+                              case 'week':
+                                filterFunction = function(a)
+                                {
+                                  var newDate = new Date();
+                                  return  newDate - Date.parse(a.time) <= 7*86400000
+                                }
+                                break;
+                              case 'month':
+                                filterFunction = function(a)
+                                {
+                                  var newDate = new Date();
+                                  return  newDate - Date.parse(a.time) <= 31*86400000
+                                }
+                                break;
+                              case 'year':
+                                filterFunction = function(a)
+                                {
+                                  var newDate = new Date();
+                                  return  newDate - Date.parse(a.time) <= 365*86400000
+                                }
+                                break;
+                              case 'allTime':
+                                  filterFunction = function(a)
+                                  {
+                                    return true;
+                                  }
+                                  break;
+                            }
+                            var arr = $scope.results;
+                            if(arr != [])
+                              arr = arr.filter(filterFunction);
+                            $scope.results = arr;
+                          }
+                          for(var i = 0; i < $scope.results.length; i++)
+                          {
+                            console.log($scope.results[i]);
+                            if($scope.results[i].description.length >= 400)
+                            {
+                              $scope.results[i].description = $scope.results[i].description.substring(0,401) + "...";
+                            }
+                          }
+
+                          function safeApply(scope, fn) {
+                            (scope.$$phase || scope.$root.$$phase) ? fn() : scope.$apply();
+                          }
+                          safeApply($scope, function(){});
+
+                        });
+                      }
+                    }
+                  });
+                }]);
+                myApp.controller('postController', ['$route', '$scope', '$http','$routeParams', '$location', '$timeout', '$sce',
+                  function($route, $scope, $http, $routeParams, $location, $timeout, $sce) {
+                    this.$route = $route;
+                    this.$location = $location;
+                    this.$routeParams = $routeParams;
+                    this.$timeout = $timeout;
+                    $scope.$on('$viewContentLoaded', function()
+                    {
+                      function getRandomArbitrary(min, max) {
+                           return Math.floor(Math.random() * (max - min) + min);
+                       }
+
+                      $http.get("/api/posts/" + $routeParams.postId)
+                      .success(function(response)
+                      {
+                        $scope.results = response[0];
+                        $scope.results.postId = $routeParams.postId;
+                        $scope.results.commentLabel = "Comments";
+                        $scope.results.submitLabel = "Submit";
+                        if($scope.results.category == "Videos")
+                          $scope.results.imageURL = $sce.trustAsResourceUrl("https://www.youtube.com/embed/" + $scope.results.imageURL.substring($scope.results.imageURL.indexOf("/watch?v=") + "/watch?v=".length));
+
+                        var colors = ["blue","red","green","orange","purple", "pink", "black", "brown"];
+                        var symbols = ["fa fa-ship fa-2x", "fa fa-car fa-2x", "fa fa-tree fa-2x", "fa fa-diamond fa-2x", "fa fa-gear fa-2x", "fa fa-bug fa-2x", "fa fa-paw fa-2x", "fa fa-soccer-ball-o fa-2x", "fa fa-flag fa-2x"];
+
+                        for(var i = 0; i < $scope.results.comments.length; i++)
+                        {
+                          var r1 = getRandomArbitrary(0, 8);
+                          var r2 = getRandomArbitrary(0, 9);
+                          $scope.results.comments[i].color = colors[r1];
+                          $scope.results.comments[i].symbol = symbols[r2];
+                        }
+                        $timeout(function()
+                        {
+                          $("#submissionForm").css('visibility', 'visible');
+                          $('#newComment').click(function()
+                          {
+                            var text = $('#commentArea').val()
+                            $http.post('/api/addComment/' + $routeParams.postId, {actualComment: text, onPost: $routeParams.postId})
+                            .success(function(response)
+                            {
+                              $scope.results.comments.unshift({
+                                "actualComment" : text,
+                                "onPost": $routeParams.postId
+                              });
+
+                              var r1 = getRandomArbitrary(0, 8);
+                              var r2 = getRandomArbitrary(0, 9);
+                              $scope.results.comments[0].color = colors[r1];
+                              $scope.results.comments[0].symbol = symbols[r2];
+                              function safeApply(scope, fn) {
+                                  (scope.$$phase || scope.$root.$$phase) ? fn() : scope.$apply();
+                              }
+                              safeApply($scope, function(){});
+                              $('#commentArea').val("");
+                            });
+                          });
+                        });
+                      });
+                    });
+                  }]);
+          </script>
+        <header style='background-color: #CC0000; width: 100%; position: fixed; z-index:2000'>
+            <span style='margin-top: 10px; display: inline-block; cursor: pointer' onclick="$($(this).find('a'))[0].click();">
+              <img src='https://dl.dropboxusercontent.com/u/374061708/knapsack.png' style="margin-left:10px; height: 40px; width: 40px"></img>
+              <a href="#/"></a>
+              <h1 class='headerFont' style="display:inline-block; vertical-align:top; color: white; margin: 0px; margin-left: 10px">Napsack</h1>
+            </span>
+            <a style="display: none" id="dynamicUrlDirector" href="#"></a>
+            <div style="display: inline-block; padding-left: 20px" class="dropdown">
+              <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Sections
+                <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li><a href="#/category/Funny">Funny</a></li>
+                  <li><a href="#/category/Comic">Comic</a></li>
+                  <li><a href="#/category/GIF">GIF</a></li>
+                  <li><a href="#/category/Jokes">Jokes</a></li>
+                  <li><a href="#/category/Videos">Videos</a></li>
+                </ul>
+              </div>
+        </header>
+
+        <div id="wrapper">
+            <div id="postModal" class="modal fade" style="height: 800px; margin: 40px" role="dialog">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title">Add a post!</h4>
+                    </div>
+                    <div class="modal-body">
+                      <p id="postError" style='color: red'></p>
+                      <p><b>Title:</b></p><input id="titleCreation" type='text'></input><br><br>
+                      <p><b>Description (if any):</b></p><textarea style='resize: none; width: 80%' id="descriptionCreated" cols="50" type='text'></textarea><br><br>
+                      <p><b>Picture/GIF/Video URL (if any):</b></p><input id="urlCreation" type='text'></input><br><br>
+                      <b>Pick a Section</b>
+                      <form role="form">
+                        <div class="radio-inline">
+                          <label><input type="radio" section="Funny" name="pickSection"></input>Funny</label>
+                        </div>
+                        <div class="radio-inline">
+                            <label><input type="radio" section="Comic" name="pickSection"></input>Comic</label>
+                        </div>
+                        <div class="radio-inline">
+                          <label><input type="radio" section="GIF" name="pickSection"></input>GIF</label>
+                        </div>
+                        <div class="radio-inline">
+                          <label><input type="radio" section="Jokes" name="pickSection"></input>Jokes</label>
+                        </div>
+                        <div class="radio-inline">
+                          <label><input type="radio" section="Videos" name="pickSection"></input>Videos</label>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary" onclick="addPost()">Submit</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <div id="navigation" style="position: fixed; z-index: 500; padding-top:50px">
+                <div id="interactors">
+                      <button onclick="$($('.dropdown')[0]).find('button').addClass('disabled')" data-target="#postModal" data-toggle="modal" style='float: left; margin: 16px; margin-right: 25px' class='btn btn-danger'>Upload</button>
+                      <div style='float: right; margin-right: 10px'>
+                        <input style='margin-top: 16px' type="text" id="searchBar" name="search" placeholder="Search for posts..." </input>
+                        <div style="display: inline-block; height: 20px; width: 20px">
+                          <i id='submitSearch' onclick="var str = getCheckedBoxes(); redirector('search?q=' + $('#searchBar').val() + '&categories=' + str);" style='color: black; cursor: pointer; margin-left: 5px' class="fa fa-search"></i>
+                        </div>
+                      </div>
+                </div>
+
+
+                <div id="left-pane">
+                  <h3>Search in...</h3>
+                  <form role="form" style='margin: 30px'>
+                    <div class="checkbox">
+                      <h4><input type="checkbox" searchsection="Funny" value="">Funny</h4>
+                    </div>
+                    <div class="checkbox">
+                      <h4><input type="checkbox" searchsection="Comic" value="">Comic</h4>
+                    </div>
+                    <div class="checkbox">
+                      <h4><input type="checkbox" searchsection="GIF" value="">GIF</h4>
+                    </div>
+                    <div class="checkbox">
+                      <h4><input type="checkbox" searchsection="Jokes" value="">Jokes</h4>
+                    </div>
+                    <div class="checkbox">
+                      <h4><input type="checkbox" searchsection="Videos" value="">Videos</h4>
+                    </div>
+                  </form>
+                  <div style="text-align: center">
+                    <button onclick="randomPost()" class='btn btn-danger'><i class='fa fa-random'></i> Random</button>
+                  </div>
+                </div>
+              </div>
+                <div style='display:inline-block; overflow-x: hidden; float:right; padding-top:50px' id='parentOfRightParent'>
+                  <ng-view></ng-view>
+                </div>
+            </div>
+            <script>
+              $('#newReply').click(function()
+              {
+                addReplyToPost($('#commentID').html(), $('#repliedUser').html(), $('#typeOfReply').html());
+                $("#replyMessage").val("");
+              });
+              $("#searchBar").keyup(function (e) {
+                  if (e.keyCode == 13) {
+                    redirector('search?q=' + $('#searchBar').val() + '&categories=' + getCheckedBoxes());
+                  }
+              });
+
+              $('#postModal').on('hidden.bs.modal', function (){
+                $($(".dropdown")[0]).find('button').removeClass('disabled');
+              });
+              var getCheckedBoxes = function()
+              {
+                var str = "";
+                for(var i = 0; i < $('input[type=checkbox]:checked').length; i++)
+                {
+                  str += $($('input[type=checkbox]:checked')[i]).attr('searchsection');
+                  if(i != $('input[type=checkbox]:checked').length - 1)
+                    str += ','
+                }
+                if(str == "")
+                  return "Funny,GIF,Comic,Jokes,Videos";
+                else
+                  return str;
+              }
+              var addPost = function()
+              {
+                if($("input[name=pickSection]:checked").attr('section') === undefined)
+                {
+                  $("#postError").html("You must pick a section to put your post in");
+                  return;
+                }
+                if($("#titleCreation").val() == "")
+                {
+                  $("#postError").html("There needs to be a valid title");
+                  return;
+                }
+
+
+                if($("#descriptionCreated").val().length > 10000)
+                {
+                  $("#postError").html("Character limit of 10000 characters has been exceeded");
+                  return;
+                }
+
+                if($("#descriptionCreated").val() == "" && $("#urlCreation").val() == "")
+                {
+                  $("#postError").html("Both url and description cannot be blank. At least one must be filled.");
+                  return;
+                }
+                if($("input[name=pickSection]:checked").attr('section') == "Videos")
+                {
+                  var matches =  $('#urlCreation').val().match(/watch\?v=([a-zA-Z0-9\-_]+)/);
+                  if(!matches)
+                  {
+                    $("#postError").html("The video linked is not a valid youtube video");
+                    return;
+                  }
+                }
+
+                else
+                {
+                  if($('#urlCreation').val() != "")
+                  {
+                    function IsValidImageUrl(url) {
+                      $("<img>", {
+                        src: url,
+                        error: function() { return false; },
+                        load: function() { return true; }
+                      });
+                    }
+                    if(!IsValidImageUrl($('#urlCreation').val()))
+                    {
+                      $("#postError").html("The url linked is not a valid image");
+                      return;
+                    }
+                  }
+                }
+                var request = new XMLHttpRequest();
+                request.addEventListener('load', function()
+                {
+                  returnedNewPost = JSON.parse(request.responseText)
+                  redirector('posts/' + returnedNewPost._id);
+                });
+                request.open('POST', '/api/posts');
+                request.setRequestHeader('Content-type', 'application/json');
+                request.send(JSON.stringify({"title": $('#titleCreation').val(), "category": $("input[name=pickSection]:checked").attr('section'), "description" : $('#descriptionCreated').val(), "imageURL" : $('#urlCreation').val()}));
+                $('#postModal').modal('hide')
+                $('#titleCreation').val("");
+                $('#descriptionCreated').val("");
+                $('#urlCreation').val("");
+                $("#postError").html("");
+                $("input[name=pickSection]").attr('checked',false);
+              }
+              var randomPost = function()
+              {
+                var request = new XMLHttpRequest();
+                request.addEventListener('load', function()
+                {
+                  returnedPosts = JSON.parse(request.responseText);
+                  if(returnedPosts.length != 0)
+                  {
+                    var index = Math.floor(Math.random() * (returnedPosts.length - 0)) + 0;
+                    redirector('posts/' + returnedPosts[index]._id);
+                  }
+                });
+                request.open('GET', '/api/posts');
+                request.setRequestHeader('Content-type', 'application/json');
+                request.send();
+              }
+            </script>
+          </body>
+      </html>
