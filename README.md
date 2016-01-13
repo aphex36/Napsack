@@ -6,9 +6,12 @@ allowing the user to post anonymously
 To run this program have Node.js and MongoDB installed on your computer then:
 
 1) cd into the project, and create a folder <folderName> (could be whatever you want it to be)
+
 2) run "mongod --dbpath <folderName>" while in the project
-2) In another terminal run "node startingServer.js" (in the same directory earlier)
-3) Visit localhost:3000
+
+3) In another terminal run "node startingServer.js" (in the same directory earlier)
+
+4) Visit localhost:3000
 
 I published this web app using AWS:
 
