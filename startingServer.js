@@ -8,7 +8,7 @@ var app = express()
 app.use(bodyParser.json());
 app.use(express.static('views'));
 
-mongoose.connect('mongodb://localhost/myapp');
+mongoose.connect('mongodb://node:node@mongo.onmodulus.net:27017/uwO3mypu');
 
 var Post = mongoose.model('Post', {
     title : String,
