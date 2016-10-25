@@ -38,7 +38,7 @@
           console.log(myApp.signedIn);
           myApp.config(function($sceDelegateProvider)
           {
-            $sceDelegateProvider.resourceUrlWhitelist(['https://dl.dropboxusercontent.com/u/374061708/**', 'http://localhost:3000/**', 'http://engr.uconn.edu/~gelyko/images/people_pic/anonymous.png', 'http://media.npr.org/assets/news/1659/10/27/facebook1_sq-17f6f5e06d5742d8c53576f7c13d5cf7158202a9.jpg?s=16','http://ec2-52-91-121-160.compute-1.amazonaws.com:3000/**']);
+            $sceDelegateProvider.resourceUrlWhitelist(['https://dl.dropboxusercontent.com/u/374061708/**', 'http://localhost:3000/**', 'http://engr.uconn.edu/~gelyko/images/people_pic/anonymous.png', 'http://media.npr.org/assets/news/1659/10/27/facebook1_sq-17f6f5e06d5742d8c53576f7c13d5cf7158202a9.jpg?s=16','http://ec2-52-91-121-160.compute-1.amazonaws.com:3000/**', 'http://ec2-52-87-153-223.compute-1.amazonaws.com:3000/**']);
           });
 
           myApp.config(function($routeProvider)
@@ -47,34 +47,34 @@
                  .when('/',
                  {
                    controller: 'mainController',
-                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   templateUrl: '/postsDirectory.html',
                    controllerAs: 'main',
                    type: 'main'
                  })
                  .when('/posts/:postId',
                  {
                    controller: 'postController',
-                   templateUrl: 'http://localhost:3000/specificPost.html',
+                   templateUrl: '/specificPost.html',
                    controllerAs: 'post'
                  })
                  .when('/search',
                  {
                    controller: 'mainController',
-                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   templateUrl: '/postsDirectory.html',
                    controllerAs: 'main',
                    type:'search'
                  })
                  .when('/sort/:sortType',
                  {
                    controller: 'mainController',
-                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   templateUrl: '/postsDirectory.html',
                    controllerAs: 'main',
                    type:'sort'
                  })
                  .when('/category/:categoryName',
                  {
                    controller: 'mainController',
-                   templateUrl: 'http://localhost:3000/postsDirectory.html',
+                   templateUrl: '/postsDirectory.html',
                    controllerAs: 'main',
                    type:'category'
                  })
